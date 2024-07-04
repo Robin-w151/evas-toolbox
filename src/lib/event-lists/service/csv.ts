@@ -1,6 +1,13 @@
 import type { CsvData } from '../model/csv-data';
 import { parse as csvParse } from 'csv/browser/esm';
 
+export interface Lookup {
+  data?: CsvData;
+  dataKeyColumn?: string;
+  reference?: CsvData;
+  referenceKeyColumn?: string;
+}
+
 export async function parse(file: File): Promise<CsvData> {
   const data = await readFile(file);
 
@@ -43,6 +50,33 @@ export function deduplicate(data?: CsvData, keyColumn?: string): CsvData | undef
   return {
     ...data,
     records: [...map.values()],
+  };
+}
+
+export function lookup(lookup?: Lookup): CsvData | undefined {
+  const { data, dataKeyColumn, reference, referenceKeyColumn } = lookup ?? {};
+  if (
+    !data ||
+    data.records.length === 0 ||
+    !reference ||
+    reference.records.length === 0 ||
+    !dataKeyColumn ||
+    !referenceKeyColumn
+  ) {
+    return;
+  }
+
+  const map = new Map<string, any>(
+    reference.records.map((record) => [record[referenceKeyColumn], record]),
+  );
+  const records = data.records
+    .map((record) => map.get(record[dataKeyColumn]))
+    .filter((record) => !!record);
+
+  return {
+    header: reference.header,
+    records,
+    total: records.length,
   };
 }
 
