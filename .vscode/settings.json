@@ -1,0 +1,7 @@
+{
+  "scss.lint.unknownAtRules": "ignore",
+  "search.exclude": {
+    "**/.svelte-kit": true,
+    "**/node_modules": true
+  }
+}
