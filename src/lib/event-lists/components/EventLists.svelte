@@ -3,10 +3,10 @@
   import Label from '$lib/shared/components/form/Label.svelte';
   import PageCard from '$lib/shared/components/page/PageCard.svelte';
   import { Icon } from 'svelte-awesome';
-
   import type { CsvData } from '../model/csv-data';
   import { deduplicate, lookup, parse } from '../service/csv';
   import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+  import saveAs from 'file-saver';
 
   let attendeesFiles: FileList | undefined;
   let attendeesData: CsvData | undefined;
@@ -25,7 +25,7 @@
   });
   $: isFormValid = !!attendeesFiles?.[0] && !!registeredFiles?.[0];
 
-  async function process(): Promise<void> {
+  async function processData(): Promise<void> {
     const attendeesFile = attendeesFiles?.[0];
     const registeredFile = registeredFiles?.[0];
     if (!attendeesFile || !registeredFile) {
@@ -34,6 +34,18 @@
 
     attendeesData = await parse(attendeesFile);
     registeredData = await parse(registeredFile);
+  }
+
+  function exportData(): void {
+    if (attendeesWithRegisteredData) {
+      const { header, records } = attendeesWithRegisteredData;
+      const data = [
+        header.join(','),
+        ...records.map((record) => header.map((h) => record[h])),
+      ].join('\n');
+
+      saveAs(new Blob([data], { type: 'text/csv;charset=utf-8' }), 'export.csv');
+    }
   }
 </script>
 
@@ -47,7 +59,7 @@
       <input class="input" type="file" accept=".csv" bind:files={registeredFiles} />
     </Label>
     <div class="flex justify-end gap-2">
-      <button class="btn variant-filled-primary" disabled={!isFormValid} on:click={process}
+      <button class="btn variant-filled-primary" disabled={!isFormValid} on:click={processData}
         >Ausführen</button
       >
     </div>
@@ -101,6 +113,11 @@
             {/each}
           </tbody>
         </table>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn variant-filled-primary" on:click={exportData}
+          >Speichern</button
+        >
       </div>
     {/if}
   {/if}
