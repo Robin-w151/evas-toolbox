@@ -8,7 +8,7 @@
     <AppBar />
   </svelte:fragment>
   <div class="flex justify-center p-4">
-    <div class="flex flex-col items-center gap-4 w-full max-w-screen-xl">
+    <div class="flex flex-col items-center gap-4 w-full max-w-screen-2xl">
       <slot />
     </div>
   </div>

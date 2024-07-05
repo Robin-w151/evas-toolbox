@@ -1,12 +1,6 @@
 import type { CsvData } from '../model/csv-data';
 import { parse as csvParse } from 'csv/browser/esm';
-
-export interface Lookup {
-  data?: CsvData;
-  dataKeyColumn?: string;
-  reference?: CsvData;
-  referenceKeyColumn?: string;
-}
+import type { Lookup, LookupResult, LookupResultCandidateMapping } from '../model/lookup';
 
 export async function parse(file: File): Promise<CsvData> {
   const data = await readFile(file);
@@ -34,6 +28,10 @@ export async function parse(file: File): Promise<CsvData> {
   });
 }
 
+export function findEmailColumn(header?: Array<string>): string | undefined {
+  return header?.find((h) => /email/i.test(h.replaceAll(/[-_\s]/g, '')));
+}
+
 export function deduplicate(data?: CsvData, keyColumn?: string): CsvData | undefined {
   if (!data || !keyColumn) {
     return data;
@@ -53,7 +51,7 @@ export function deduplicate(data?: CsvData, keyColumn?: string): CsvData | undef
   };
 }
 
-export function lookup(lookup?: Lookup): CsvData | undefined {
+export function lookup(lookup?: Lookup): LookupResult | undefined {
   const { data, dataKeyColumn, reference, referenceKeyColumn } = lookup ?? {};
   if (
     !data ||
@@ -69,14 +67,63 @@ export function lookup(lookup?: Lookup): CsvData | undefined {
   const map = new Map<string, any>(
     reference.records.map((record) => [record[referenceKeyColumn], record]),
   );
+  const unassigned: Array<any> = [];
+
   const records = data.records
-    .map((record) => map.get(record[dataKeyColumn]))
-    .filter((record) => !!record);
+    .map((record) => {
+      const match = map.get(record[dataKeyColumn]);
+      if (match) {
+        return match;
+      }
+
+      unassigned.push(record);
+    })
+    .filter((match) => !!match);
+
+  let candidateMappings: Array<LookupResultCandidateMapping> | undefined = undefined;
+  if (unassigned.length > 0) {
+    const referenceWithSerialized = reference.records.map((ref) => [
+      ref,
+      JSON.stringify(ref).toLowerCase(),
+    ]);
+
+    candidateMappings = unassigned
+      .map((record) => {
+        const candidates = referenceWithSerialized
+          .filter(([, serialized]) => {
+            for (const key in record) {
+              if (serialized.includes(record[key].toLowerCase())) {
+                return true;
+              }
+            }
+
+            return false;
+          })
+          .map(([ref]) => ref);
+
+        if (candidates?.length > 0) {
+          return {
+            left: record,
+            candidates,
+          };
+        }
+      })
+      .filter((mapping) => !!mapping);
+  }
 
   return {
-    header: reference.header,
-    records,
-    total: records.length,
+    matches: {
+      header: reference.header,
+      records,
+      total: records.length,
+    },
+    unassigned: candidateMappings
+      ? {
+          headerLeft: data.header,
+          headerRight: reference.header,
+          candidateMappings,
+        }
+      : undefined,
   };
 }
 
