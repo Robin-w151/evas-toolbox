@@ -9,6 +9,13 @@
   let manuallyAssigned: Array<any> = [];
   let manuallyAssignedMap = new Map<any, any>();
 
+  $: resetManuallyAssigned(data);
+
+  function resetManuallyAssigned(_data: LookupResult): void {
+    manuallyAssigned = [];
+    manuallyAssignedMap = new Map();
+  }
+
   function assignManually(left: any, candidate: any): void {
     const assignedCandidate = manuallyAssignedMap.get(left);
 
