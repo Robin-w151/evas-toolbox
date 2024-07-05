@@ -131,6 +131,7 @@
   </table>
 </div>
 <div class="flex justify-end gap-2">
-  <button type="button" class="btn variant-filled-primary" on:click={exportData}>Exportieren</button
+  <button type="button" class="btn variant-filled-primary" on:click={exportData}
+    >Ergebnis exportieren</button
   >
 </div>
