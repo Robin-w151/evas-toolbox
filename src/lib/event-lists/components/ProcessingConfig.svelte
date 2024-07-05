@@ -43,15 +43,15 @@
 </Label>
 <Label text="Spalten für die Zuordnung">
   <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-    <select class="select" bind:value={attendeesLookupColumn} placeholder="Bitte wählen">
-      <option value={undefined}></option>
+    <select class="select" bind:value={attendeesLookupColumn}>
+      <option value={undefined}>Bitte wählen</option>
       {#each attendeesHeader ?? [] as header}
         <option value={header}>{header}</option>
       {/each}
     </select>
     <Icon data={faArrowRight} />
-    <select class="select" bind:value={registeredLookupColumn} placeholder="Bitte wählen">
-      <option value={undefined}></option>
+    <select class="select" bind:value={registeredLookupColumn}>
+      <option value={undefined}>Bitte wählen</option>
       {#each registeredHeader ?? [] as header}
         <option value={header}>{header}</option>
       {/each}
