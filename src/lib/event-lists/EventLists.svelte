@@ -15,6 +15,8 @@
   let registeredKeyColumn: string | undefined;
   let registeredSearchColumns: Array<string> = [];
 
+  let processingErrorMessage: string | undefined = undefined;
+
   $: attendeesWithRegisteredData = lookup({
     data: deduplicate(attendeesData, attendeesDeduplicateColumn),
     dataKeyColumn: attendeesKeyColumn,
@@ -32,17 +34,23 @@
       return;
     }
 
-    attendeesData = await parse(attendeesFile);
-    registeredData = await parse(registeredFile);
+    try {
+      attendeesData = await parse(attendeesFile);
+      registeredData = await parse(registeredFile);
 
-    attendeesSearchColumns = [...attendeesData.header];
-    registeredSearchColumns = [...registeredData.header];
+      attendeesSearchColumns = [...attendeesData.header];
+      registeredSearchColumns = [...registeredData.header];
+    } catch (error) {
+      console.error(error);
+      processingErrorMessage =
+        'Fehler beim Einlesen der Daten! Eventuell ist das Format ungültig oder die Dateien sind beschädigt.';
+    }
   }
 </script>
 
 <PageCard>
   <h2 class="h2">Dateneingabe</h2>
-  <DataInput on:submit={processData} />
+  <DataInput errorMessage={processingErrorMessage} on:submit={processData} />
   {#if attendeesData && registeredData}
     <hr />
     <h2 class="h2">Auswertung</h2>

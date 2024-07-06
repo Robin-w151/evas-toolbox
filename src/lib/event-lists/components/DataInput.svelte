@@ -3,12 +3,17 @@
   import Label from '$lib/shared/components/form/Label.svelte';
   import { createEventDispatcher } from 'svelte';
 
+  export let errorMessage: string | undefined = undefined;
+
   const dispatch = createEventDispatcher();
+  const invalidFormatMessage = 'Ungültiges Format!';
 
   let attendeesFiles: FileList | undefined = undefined;
   let registeredFiles: FileList | undefined = undefined;
 
-  $: isFormValid = !!attendeesFiles?.[0] && !!registeredFiles?.[0];
+  $: isAttendeesFileValid = isSingleCSVFile(attendeesFiles);
+  $: isRegisteredFileValid = isSingleCSVFile(registeredFiles);
+  $: isFormValid = isAttendeesFileValid && isRegisteredFileValid;
 
   function handleSubmit(): void {
     const attendeesFile = attendeesFiles?.[0];
@@ -21,18 +26,39 @@
       });
     }
   }
+
+  function isSingleCSVFile(files?: FileList): boolean {
+    const file = files?.[0];
+    return !!file && file.type === 'text/csv';
+  }
+
+  function isSingleCSVFileOrEmpty(files?: FileList): boolean {
+    const file = files?.[0];
+    return !file || file.type === 'text/csv';
+  }
 </script>
 
 <Form>
-  <Label text="Liste der anwesenden Teilnehmer">
+  <Label
+    text="Liste der anwesenden Teilnehmer"
+    error={!isSingleCSVFileOrEmpty(attendeesFiles)}
+    errorMessage={invalidFormatMessage}
+  >
     <input class="input" type="file" accept=".csv" bind:files={attendeesFiles} />
   </Label>
-  <Label text="Liste der angemeldeten Teilnehmer">
+  <Label
+    text="Liste der angemeldeten Teilnehmer"
+    error={!isSingleCSVFileOrEmpty(registeredFiles)}
+    errorMessage={invalidFormatMessage}
+  >
     <input class="input" type="file" accept=".csv" bind:files={registeredFiles} />
   </Label>
-  <div class="flex justify-end gap-2">
-    <button class="btn variant-filled-primary" disabled={!isFormValid} on:click={handleSubmit}
-      >Daten laden</button
-    >
+  <div class="flex justify-between items-center gap-4">
+    <p class="text-error-600-300-token">{errorMessage ?? ''}</p>
+    <div class="flex justify-end gap-2">
+      <button class="btn variant-filled-primary" disabled={!isFormValid} on:click={handleSubmit}
+        >Daten laden</button
+      >
+    </div>
   </div>
 </Form>
