@@ -29,6 +29,7 @@
   async function processData({
     detail,
   }: CustomEvent<{ attendeesFile: File; registeredFile: File }>): Promise<void> {
+    processingErrorMessage = undefined;
     const { attendeesFile, registeredFile } = detail;
     if (!attendeesFile || !registeredFile) {
       return;
