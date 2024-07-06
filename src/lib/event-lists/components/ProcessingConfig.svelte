@@ -13,9 +13,18 @@
   export let registeredKeyColumn: string | undefined;
   export let registeredSearchColumns: Array<string> = [];
 
+  let prevAttendeesHeader: Array<string> | undefined;
+  let prevRegisteredHeader: Array<string> | undefined;
+
   $: initColumns(attendeesHeader, registeredHeader);
 
   function initColumns(attendeesHeader: Array<string>, registeredHeader: Array<string>): void {
+    if (attendeesHeader === prevAttendeesHeader && registeredHeader === prevRegisteredHeader) {
+      return;
+    }
+    prevAttendeesHeader = attendeesHeader;
+    prevRegisteredHeader = registeredHeader;
+
     const attendeesHeaderEmailColumn = findEmailColumn(attendeesHeader);
     if (attendeesHeaderEmailColumn) {
       attendeesDeduplicateColumn = attendeesHeaderEmailColumn;
