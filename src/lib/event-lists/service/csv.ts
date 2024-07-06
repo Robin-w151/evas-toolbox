@@ -1,12 +1,12 @@
-import type { CsvData } from '../model/csv-data';
 import { parse as csvParse } from 'csv/browser/esm';
+import type { CsvData } from '../model/csv-data';
 import type { Lookup, LookupResult, LookupResultCandidateMapping } from '../model/lookup';
 
 export async function parse(file: File): Promise<CsvData> {
   const data = await readFile(file);
 
   return new Promise((resolve, reject) => {
-    csvParse(data, { cast: true, columns: true }, (error, records, info) => {
+    csvParse(data, { columns: true }, (error, records, info) => {
       if (error) {
         reject(error);
       } else {
@@ -29,7 +29,15 @@ export async function parse(file: File): Promise<CsvData> {
 }
 
 export function findEmailColumn(header?: Array<string>): string | undefined {
-  return header?.find((h) => /email/i.test(h.replaceAll(/[-_\s]/g, '')));
+  return header?.find(isEmailColumn);
+}
+
+export function isEmailColumn(header?: string): boolean {
+  return !!header && /email/i.test(header.replaceAll(/[-_\s]/g, ''));
+}
+
+export function isNameColumn(header?: string): boolean {
+  return !!header && /name/i.test(header.replaceAll(/[-_\s]/g, ''));
 }
 
 export function deduplicate(data?: CsvData, keyColumn?: string): CsvData | undefined {
@@ -52,7 +60,14 @@ export function deduplicate(data?: CsvData, keyColumn?: string): CsvData | undef
 }
 
 export function lookup(lookup?: Lookup): LookupResult | undefined {
-  const { data, dataKeyColumn, reference, referenceKeyColumn } = lookup ?? {};
+  const {
+    data,
+    dataKeyColumn,
+    dataSearchColumns,
+    reference,
+    referenceKeyColumn,
+    referenceSearchColumns,
+  } = lookup ?? {};
   if (
     !data ||
     data.records.length === 0 ||
@@ -82,33 +97,35 @@ export function lookup(lookup?: Lookup): LookupResult | undefined {
 
   let candidateMappings: Array<LookupResultCandidateMapping> | undefined = undefined;
   if (unassigned.length > 0) {
-    const referenceWithSerialized = reference.records.map((ref) => [
-      ref,
-      JSON.stringify(ref).toLowerCase(),
-    ]);
+    const columnsForSearch = (
+      searchColumns: Array<string> | undefined,
+      header: Array<string>,
+    ): Array<string> => (searchColumns && searchColumns.length > 0 ? searchColumns : header);
 
-    candidateMappings = unassigned
-      .map((record) => {
-        const candidates = referenceWithSerialized
-          .filter(([, serialized]) => {
-            for (const key in record) {
-              if (serialized.includes(record[key].toLowerCase())) {
+    candidateMappings = unassigned.map((record) => {
+      const candidates = reference.records.filter((ref) => {
+        for (const referenceSearchColumn of columnsForSearch(
+          referenceSearchColumns,
+          reference.header,
+        )) {
+          for (const dataSearchColumn of columnsForSearch(dataSearchColumns, data.header)) {
+            const tokens = record[dataSearchColumn].split(/\s/);
+            for (const token of tokens) {
+              if (ref[referenceSearchColumn]?.toLowerCase()?.includes(token?.toLowerCase())) {
                 return true;
               }
             }
-
-            return false;
-          })
-          .map(([ref]) => ref);
-
-        if (candidates?.length > 0) {
-          return {
-            left: record,
-            candidates,
-          };
+          }
         }
-      })
-      .filter((mapping) => !!mapping);
+
+        return false;
+      });
+
+      return {
+        left: record,
+        candidates,
+      };
+    });
   }
 
   return {

@@ -8,16 +8,20 @@
 
   let attendeesData: CsvData | undefined;
   let attendeesDeduplicateColumn: string | undefined;
-  let attendeesLookupColumn: string | undefined;
+  let attendeesKeyColumn: string | undefined;
+  let attendeesSearchColumns: Array<string> = [];
 
   let registeredData: CsvData | undefined;
-  let registeredLookupColumn: string | undefined;
+  let registeredKeyColumn: string | undefined;
+  let registeredSearchColumns: Array<string> = [];
 
   $: attendeesWithRegisteredData = lookup({
     data: deduplicate(attendeesData, attendeesDeduplicateColumn),
-    dataKeyColumn: attendeesLookupColumn,
+    dataKeyColumn: attendeesKeyColumn,
+    dataSearchColumns: attendeesSearchColumns,
     reference: registeredData,
-    referenceKeyColumn: registeredLookupColumn,
+    referenceKeyColumn: registeredKeyColumn,
+    referenceSearchColumns: registeredSearchColumns,
   });
 
   async function processData({
@@ -30,6 +34,9 @@
 
     attendeesData = await parse(attendeesFile);
     registeredData = await parse(registeredFile);
+
+    attendeesSearchColumns = [...attendeesData.header];
+    registeredSearchColumns = [...registeredData.header];
   }
 </script>
 
@@ -43,8 +50,10 @@
       attendeesHeader={attendeesData.header}
       registeredHeader={registeredData.header}
       bind:attendeesDeduplicateColumn
-      bind:attendeesLookupColumn
-      bind:registeredLookupColumn
+      bind:attendeesKeyColumn
+      bind:attendeesSearchColumns
+      bind:registeredKeyColumn
+      bind:registeredSearchColumns
     />
     {#if attendeesWithRegisteredData}
       <hr />

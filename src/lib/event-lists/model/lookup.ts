@@ -3,8 +3,10 @@ import type { CsvData } from './csv-data';
 export interface Lookup {
   data?: CsvData;
   dataKeyColumn?: string;
+  dataSearchColumns?: Array<string>;
   reference?: CsvData;
   referenceKeyColumn?: string;
+  referenceSearchColumns?: Array<string>;
 }
 
 export interface LookupResult {

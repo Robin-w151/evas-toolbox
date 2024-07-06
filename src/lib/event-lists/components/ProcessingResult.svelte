@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { faArrowRight, faCheck } from '@fortawesome/free-solid-svg-icons';
+  import { faArrowRight, faCheck, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
   import saveAs from 'file-saver';
   import { Icon } from 'svelte-awesome';
   import type { LookupResult } from '../model/lookup';
@@ -85,6 +85,20 @@
               {#each data.unassigned.headerRight as header}
                 <td>{candidate[header]}</td>
               {/each}
+            </tr>
+          {:else}
+            <tr>
+              {#each data.unassigned.headerLeft as header}
+                <td>
+                  {mapping.left[header]}
+                </td>
+              {/each}
+              <td>
+                <Icon data={faTriangleExclamation} />
+              </td>
+              <td colspan={data.unassigned.headerRight.length}>
+                Keine mögliche Zuordnung gefunden!
+              </td>
             </tr>
           {/each}
         {/each}
