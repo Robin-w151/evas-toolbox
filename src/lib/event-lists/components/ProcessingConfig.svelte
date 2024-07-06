@@ -13,16 +13,9 @@
   export let registeredKeyColumn: string | undefined;
   export let registeredSearchColumns: Array<string> = [];
 
-  let isInitialized = false;
-
   $: initColumns(attendeesHeader, registeredHeader);
 
   function initColumns(attendeesHeader: Array<string>, registeredHeader: Array<string>): void {
-    if (isInitialized) {
-      return;
-    }
-    isInitialized = true;
-
     const attendeesHeaderEmailColumn = findEmailColumn(attendeesHeader);
     if (attendeesHeaderEmailColumn) {
       attendeesDeduplicateColumn = attendeesHeaderEmailColumn;
