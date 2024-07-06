@@ -5,8 +5,8 @@
 
   const dispatch = createEventDispatcher();
 
-  let attendeesFiles: FileList | undefined;
-  let registeredFiles: FileList | undefined;
+  let attendeesFiles: FileList | undefined = undefined;
+  let registeredFiles: FileList | undefined = undefined;
 
   $: isFormValid = !!attendeesFiles?.[0] && !!registeredFiles?.[0];
 
