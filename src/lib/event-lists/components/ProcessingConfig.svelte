@@ -35,7 +35,7 @@
   }
 </script>
 
-<Label text="Spalte für die Duplikatserkennung">
+<Label text="Spalte der Liste anwesender Teilnehmer für die Duplikatserkennung">
   <select class="select" bind:value={attendeesDeduplicateColumn}>
     <option value={undefined}>Keine</option>
     {#each attendeesHeader as header}
@@ -43,7 +43,7 @@
     {/each}
   </select>
 </Label>
-<Label text="Spalten für die Zuordnung">
+<Label text="Spalten für die automatische Zuordnung">
   <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
     <select class="select" bind:value={attendeesKeyColumn}>
       <option value={undefined}>Bitte wählen</option>
@@ -60,8 +60,10 @@
     </select>
   </div>
 </Label>
-<Label text="Spalten die für die erweiterte Suche verwendet werden">
-  <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+<Label
+  text="Spalten für die erweiterte Suche falls Einträge nicht automatisch zugeordnet werden können"
+>
+  <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 p-2 bg-surface-700 rounded-lg">
     <ListBox multiple>
       {#each attendeesHeader ?? [] as header}
         <ListBoxItem bind:group={attendeesSearchColumns} name={header} value={header}
