@@ -97,7 +97,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Zugeordnet</th>
+        <th>Manuell zugeordnet</th>
         {#each data.matches.header as header (header)}
           <th>{header}</th>
         {/each}
