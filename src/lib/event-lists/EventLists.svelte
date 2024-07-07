@@ -45,6 +45,10 @@
       console.error(error);
       processingErrorMessage =
         'Fehler beim Einlesen der Daten! Eventuell ist das Format ungültig oder die Dateien sind beschädigt.';
+      attendeesData = undefined;
+      registeredData = undefined;
+      attendeesSearchColumns = [];
+      registeredSearchColumns = [];
     }
   }
 </script>
