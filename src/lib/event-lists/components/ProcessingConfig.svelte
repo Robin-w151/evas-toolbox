@@ -56,7 +56,7 @@
 <Label
   text="Spalten für die automatische Zuordnung"
   error={!isKeyColumnsValid}
-  errorMessage="Keine Spalten ausgewählt!"
+  errorMessage="Bitte wählen Sie die Spalten für die automatische Zuordnung!"
 >
   <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
     <select class="select" bind:value={attendeesKeyColumn}>
