@@ -111,7 +111,9 @@
                 </td>
               {/each}
               <td>
-                <Icon data={faTriangleExclamation} />
+                <div class="flex justify-center">
+                  <Icon data={faTriangleExclamation} />
+                </div>
               </td>
               <td colspan={referenceManualAssignmentColumns.length}>
                 Keine mögliche Zuordnung gefunden!
