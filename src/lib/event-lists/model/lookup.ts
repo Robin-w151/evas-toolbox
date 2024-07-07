@@ -15,12 +15,12 @@ export interface LookupResult {
 }
 
 export interface LookupResultUnassigned {
-  headerLeft: Array<string>;
-  headerRight: Array<string>;
+  dataHeader: Array<string>;
+  referenceHeader: Array<string>;
   candidateMappings: Array<LookupResultCandidateMapping>;
 }
 
 export interface LookupResultCandidateMapping {
-  left: any;
+  dataRecord: any;
   candidates: Array<any>;
 }

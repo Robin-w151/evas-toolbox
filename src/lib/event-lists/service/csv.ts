@@ -122,7 +122,7 @@ export function lookup(lookup?: Lookup): LookupResult | undefined {
       });
 
       return {
-        left: record,
+        dataRecord: record,
         candidates,
       };
     });
@@ -136,8 +136,8 @@ export function lookup(lookup?: Lookup): LookupResult | undefined {
     },
     unassigned: candidateMappings
       ? {
-          headerLeft: data.header,
-          headerRight: reference.header,
+          dataHeader: data.header,
+          referenceHeader: reference.header,
           candidateMappings,
         }
       : undefined,

@@ -4,14 +4,31 @@
   import { Icon } from 'svelte-awesome';
   import type { LookupResult } from '../model/lookup';
 
-  export let data: LookupResult;
+  export let lookup: LookupResult;
+  export let dataSearchColumns: Array<string>;
+  export let referenceSearchColumns: Array<string>;
 
   let manuallyAssigned: Array<any> = [];
   let manuallyAssignedMap = new Map<any, any>();
 
-  $: resetManuallyAssigned(data);
+  $: dataManualAssignmentColumns = getColumnsForManualAssignment(
+    dataSearchColumns,
+    lookup.unassigned?.dataHeader ?? [],
+  );
+  $: referenceManualAssignmentColumns = getColumnsForManualAssignment(
+    referenceSearchColumns,
+    lookup.unassigned?.referenceHeader ?? [],
+  );
+  $: resetManuallyAssigned(lookup);
 
-  function resetManuallyAssigned(_data: LookupResult): void {
+  function getColumnsForManualAssignment(
+    searchColumns: Array<string>,
+    header: Array<string>,
+  ): Array<string> {
+    return searchColumns.length > 0 ? searchColumns : header;
+  }
+
+  function resetManuallyAssigned(_lookup: LookupResult): void {
     manuallyAssigned = [];
     manuallyAssignedMap = new Map();
   }
@@ -30,8 +47,8 @@
   }
 
   function exportData(): void {
-    if (data) {
-      const { header, records } = data.matches;
+    if (lookup) {
+      const { header, records } = lookup.matches;
       const serializedData = [
         header.join(','),
         ...records.map((record) => header.map((h) => record[h]).join(',')),
@@ -43,15 +60,15 @@
   }
 </script>
 
-{#if data.unassigned}
+{#if lookup.unassigned}
   <h3 class="h3">
-    Nicht zugeordnet ({data.unassigned.candidateMappings.length - manuallyAssigned.length})
+    Nicht zugeordnet ({lookup.unassigned.candidateMappings.length - manuallyAssigned.length})
   </h3>
   <div class="table-container max-h-[600px]">
     <table class="table table-hover">
       <thead>
         <tr>
-          {#each data.unassigned.headerLeft as header (header)}
+          {#each dataManualAssignmentColumns as header (header)}
             <th>{header}</th>
           {/each}
           <th>
@@ -59,44 +76,44 @@
               <Icon data={faArrowRight} />
             </div>
           </th>
-          {#each data.unassigned.headerRight as header (header)}
+          {#each referenceManualAssignmentColumns as header (header)}
             <th>{header}</th>
           {/each}
         </tr>
       </thead>
       <tbody>
-        {#each data.unassigned.candidateMappings as mapping}
+        {#each lookup.unassigned.candidateMappings as mapping}
           {#each mapping.candidates as candidate, index}
-            <tr on:click={() => assignManually(mapping.left, candidate)}>
-              {#each data.unassigned.headerLeft as header}
+            <tr on:click={() => assignManually(mapping.dataRecord, candidate)}>
+              {#each dataManualAssignmentColumns as header}
                 <td>
                   {#if index === 0}
-                    {mapping.left[header]}
+                    {mapping.dataRecord[header]}
                   {/if}
                 </td>
               {/each}
               <td>
                 <div class="flex justify-center">
-                  {#if manuallyAssignedMap.get(mapping.left) === candidate}
+                  {#if manuallyAssignedMap.get(mapping.dataRecord) === candidate}
                     <Icon data={faCheck} />
                   {/if}
                 </div>
               </td>
-              {#each data.unassigned.headerRight as header}
+              {#each referenceManualAssignmentColumns as header}
                 <td>{candidate[header]}</td>
               {/each}
             </tr>
           {:else}
             <tr>
-              {#each data.unassigned.headerLeft as header}
+              {#each dataManualAssignmentColumns as header}
                 <td>
-                  {mapping.left[header]}
+                  {mapping.dataRecord[header]}
                 </td>
               {/each}
               <td>
                 <Icon data={faTriangleExclamation} />
               </td>
-              <td colspan={data.unassigned.headerRight.length}>
+              <td colspan={referenceManualAssignmentColumns.length}>
                 Keine mögliche Zuordnung gefunden!
               </td>
             </tr>
@@ -106,13 +123,13 @@
     </table>
   </div>
 {/if}
-<h3 class="h3">Ergebnis ({data.matches.records.length + manuallyAssigned.length})</h3>
+<h3 class="h3">Ergebnis ({lookup.matches.records.length + manuallyAssigned.length})</h3>
 <div class="table-container max-h-[600px]">
   <table class="table">
     <thead>
       <tr>
         <th>Manuell zugeordnet</th>
-        {#each data.matches.header as header (header)}
+        {#each lookup.matches.header as header (header)}
           <th>{header}</th>
         {/each}
       </tr>
@@ -123,22 +140,22 @@
           <td>
             <Icon data={faCheck} />
           </td>
-          {#each data.matches.header as header}
+          {#each lookup.matches.header as header}
             <td>{candidate[header]}</td>
           {/each}
         </tr>
       {/each}
-      {#each data.matches.records as record}
+      {#each lookup.matches.records as record}
         <tr>
           <td></td>
-          {#each data.matches.header as header}
+          {#each lookup.matches.header as header}
             <td>{record[header]}</td>
           {/each}
         </tr>
       {/each}
-      {#if manuallyAssigned.length === 0 && data.matches.records.length === 0}
+      {#if manuallyAssigned.length === 0 && lookup.matches.records.length === 0}
         <tr>
-          <td colspan={data.matches.header.length + 1}>Keine Einträge</td>
+          <td colspan={lookup.matches.header.length + 1}>Keine Einträge</td>
         </tr>
       {/if}
     </tbody>

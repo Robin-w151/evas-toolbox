@@ -66,7 +66,11 @@
     />
     {#if attendeesWithRegisteredData}
       <hr />
-      <ProcessingResult data={attendeesWithRegisteredData} />
+      <ProcessingResult
+        lookup={attendeesWithRegisteredData}
+        dataSearchColumns={attendeesSearchColumns}
+        referenceSearchColumns={registeredSearchColumns}
+      />
     {/if}
   {/if}
 </PageCard>
