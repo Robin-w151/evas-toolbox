@@ -17,6 +17,7 @@
   let prevRegisteredHeader: Array<string> | undefined;
 
   $: initColumns(attendeesHeader, registeredHeader);
+  $: isKeyColumnsValid = !!attendeesKeyColumn && !!registeredKeyColumn;
 
   function initColumns(attendeesHeader: Array<string>, registeredHeader: Array<string>): void {
     if (attendeesHeader === prevAttendeesHeader && registeredHeader === prevRegisteredHeader) {
@@ -52,7 +53,11 @@
     {/each}
   </select>
 </Label>
-<Label text="Spalten für die automatische Zuordnung">
+<Label
+  text="Spalten für die automatische Zuordnung"
+  error={!isKeyColumnsValid}
+  errorMessage="Keine Spalten ausgewählt!"
+>
   <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
     <select class="select" bind:value={attendeesKeyColumn}>
       <option value={undefined}>Bitte wählen</option>
