@@ -51,8 +51,8 @@
       const { header, records } = lookup.matches;
       const serializedData = [
         header.join(','),
-        ...records.map((record) => header.map((h) => record[h]).join(',')),
-        ...manuallyAssigned.map((record) => header.map((h) => record[h]).join(',')),
+        ...records.map((record) => header.map((h) => record[h] ?? '').join(',')),
+        ...manuallyAssigned.map((record) => header.map((h) => record[h] ?? '').join(',')),
       ].join('\n');
 
       saveAs(new Blob([serializedData], { type: 'text/csv;charset=utf-8' }), 'export.csv');
@@ -88,7 +88,7 @@
               {#each dataManualAssignmentColumns as header}
                 <td>
                   {#if index === 0}
-                    {mapping.dataRecord[header]}
+                    {mapping.dataRecord[header] ?? ''}
                   {/if}
                 </td>
               {/each}
@@ -100,14 +100,14 @@
                 </div>
               </td>
               {#each referenceManualAssignmentColumns as header}
-                <td>{candidate[header]}</td>
+                <td>{candidate[header] ?? ''}</td>
               {/each}
             </tr>
           {:else}
             <tr>
               {#each dataManualAssignmentColumns as header}
                 <td>
-                  {mapping.dataRecord[header]}
+                  {mapping.dataRecord[header] ?? ''}
                 </td>
               {/each}
               <td>
@@ -143,7 +143,7 @@
             <Icon data={faCheck} />
           </td>
           {#each lookup.matches.header as header}
-            <td>{candidate[header]}</td>
+            <td>{candidate[header] ?? ''}</td>
           {/each}
         </tr>
       {/each}
@@ -151,7 +151,7 @@
         <tr>
           <td></td>
           {#each lookup.matches.header as header}
-            <td>{record[header]}</td>
+            <td>{record[header] ?? ''}</td>
           {/each}
         </tr>
       {/each}

@@ -15,6 +15,7 @@
   let registeredKeyColumn: string | undefined;
   let registeredSearchColumns: Array<string> = [];
 
+  let columnMapping: Map<string, string> = new Map();
   let processingErrorMessage: string | undefined = undefined;
 
   $: attendeesWithRegisteredData = lookup({
@@ -24,6 +25,7 @@
     reference: registeredData,
     referenceKeyColumn: registeredKeyColumn,
     referenceSearchColumns: registeredSearchColumns,
+    columnMapping,
   });
 
   async function processData({
@@ -41,6 +43,7 @@
 
       attendeesSearchColumns = [...attendeesData.header];
       registeredSearchColumns = [...registeredData.header];
+      columnMapping = new Map();
     } catch (error) {
       console.error(error);
       processingErrorMessage =
@@ -49,6 +52,7 @@
       registeredData = undefined;
       attendeesSearchColumns = [];
       registeredSearchColumns = [];
+      columnMapping = new Map();
     }
   }
 </script>
@@ -67,6 +71,7 @@
       bind:attendeesSearchColumns
       bind:registeredKeyColumn
       bind:registeredSearchColumns
+      bind:columnMapping
     />
     {#if attendeesWithRegisteredData}
       <hr />

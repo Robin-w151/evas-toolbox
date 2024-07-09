@@ -60,6 +60,8 @@ export function deduplicate(data?: CsvData, keyColumn?: string): CsvData | undef
 }
 
 export function lookup(lookup?: Lookup): LookupResult | undefined {
+  console.log('lookup');
+
   const {
     data,
     dataKeyColumn,
@@ -67,6 +69,7 @@ export function lookup(lookup?: Lookup): LookupResult | undefined {
     reference,
     referenceKeyColumn,
     referenceSearchColumns,
+    columnMapping,
   } = lookup ?? {};
   if (
     !data ||
@@ -120,6 +123,17 @@ export function lookup(lookup?: Lookup): LookupResult | undefined {
 
         return false;
       });
+
+      if (columnMapping && columnMapping.size > 0) {
+        const mappedRecord: any = {};
+        data.header.forEach((header) => {
+          const mappedHeader = columnMapping.get(header);
+          if (mappedHeader) {
+            mappedRecord[mappedHeader] = record[header];
+          }
+        });
+        candidates.push(mappedRecord);
+      }
 
       return {
         dataRecord: record,

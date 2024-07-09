@@ -7,6 +7,7 @@ export interface Lookup {
   reference?: CsvData;
   referenceKeyColumn?: string;
   referenceSearchColumns?: Array<string>;
+  columnMapping?: Map<string, string>;
 }
 
 export interface LookupResult {
