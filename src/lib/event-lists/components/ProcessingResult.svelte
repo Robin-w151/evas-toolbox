@@ -51,12 +51,24 @@
       const { header, records } = lookup.matches;
       const serializedData = [
         header.join(','),
-        ...records.map((record) => header.map((h) => record[h] ?? '').join(',')),
-        ...manuallyAssigned.map((record) => header.map((h) => record[h] ?? '').join(',')),
+        ...records.map((record) => header.map((h) => mapToCellValue(record[h])).join(',')),
+        ...manuallyAssigned.map((record) => header.map((h) => mapToCellValue(record[h])).join(',')),
       ].join('\n');
 
       saveAs(new Blob([serializedData], { type: 'text/csv;charset=utf-8' }), 'export.csv');
     }
+  }
+
+  function mapToCellValue(value?: string): string {
+    if (!value) {
+      return '';
+    }
+
+    if (value.includes(',')) {
+      return `"${value}"`;
+    }
+
+    return value;
   }
 </script>
 
